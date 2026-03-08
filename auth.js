@@ -1,8 +1,8 @@
 // SUPABASE SETUP INSTRUCTIONS:
 // 1. Enter your Supabase REST URL and anon public key below.
 // 2. These are used to communicate with the 'users' table you created via schema.sql.
-const SUPABASE_URL = 'https://sgfowddqtsqwyjmpcbex.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNnZm93ZGRxdHNxd3lqbXBjYmV4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5OTQ5MTgsImV4cCI6MjA4ODU3MDkxOH0.QLc-kzaQUFHnD4XCFZcX3I-bYaww_dHv8p4s0kwNe3A';
+const SUPABASE_URL = '';
+const SUPABASE_KEY = '';
 
 /**
  * Ensures a user exists in the Supabase 'users' table based on their email.
