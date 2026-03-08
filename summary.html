@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Summary - Insight AI</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body class="summary-page-body fade-in">
+  
+  <nav class="summary-nav">
+    <div class="nav-content max-w-content">
+      <div class="logo-area">
+        <div class="logo-icon-bg small">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 17a24.12 24.12 0 0 1 0-10 2 2 0 0 1 1.4-1.4 49.56 49.56 0 0 1 16.2 0A2 2 0 0 1 21.5 7a24.12 24.12 0 0 1 0 10 2 2 0 0 1-1.4 1.4 49.55 49.55 0 0 1-16.2 0A2 2 0 0 1 2.5 17"/><path d="m10 15 5-3-5-3z"/></svg>
+        </div>
+        <span class="nav-brand">Insight AI</span>
+      </div>
+      <div class="nav-actions">
+        <button id="copy-summary-btn" class="btn secondary small">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          Copy Text
+        </button>
+        <button id="download-summary-btn" class="btn secondary small">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download PDF
+        </button>
+        <button id="back-to-yt-btn" class="btn primary small">Back to Video</button>
+      </div>
+    </div>
+  </nav>
+
+  <main class="article-container max-w-content">
+    <div id="error-alert" class="hidden error-card slide-up mb-4"></div>
+    
+    <article id="summary-article" class="glass-article slide-up">
+      <header class="article-header">
+        <div class="meta-tags">
+          <span class="tag">AI Generated Summary</span>
+          <span class="tag date" id="summary-date">Today</span>
+        </div>
+        <h1 id="article-title" class="skeleton-text skeleton-heading"></h1>
+      </header>
+
+      <div id="article-content" class="article-content">
+        <!-- Content gets injected here -->
+        <div class="skeleton-text"></div>
+        <div class="skeleton-text"></div>
+        <div class="skeleton-text short"></div>
+        <br>
+        <div class="skeleton-text"></div>
+        <div class="skeleton-text short"></div>
+      </div>
+    </article>
+
+    <footer class="summary-footer">
+      Insight AI • Created by Abdullah Dilshad
+    </footer>
+  </main>
+  
+  <!-- Add html2pdf library for PDF generation -->
+  <script src="html2pdf.bundle.min.js"></script>
+  <script src="summary.js"></script>
+</body>
+</html>

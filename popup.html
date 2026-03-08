@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Insight AI</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="popup-body">
+  <div class="popup-container popup-slide-up">
+    <!-- Header -->
+    <header class="popup-header">
+      <div class="logo-area">
+        <div class="logo-icon-bg">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 17a24.12 24.12 0 0 1 0-10 2 2 0 0 1 1.4-1.4 49.56 49.56 0 0 1 16.2 0A2 2 0 0 1 21.5 7a24.12 24.12 0 0 1 0 10 2 2 0 0 1-1.4 1.4 49.55 49.55 0 0 1-16.2 0A2 2 0 0 1 2.5 17"/><path d="m10 15 5-3-5-3z"/></svg>
+        </div>
+        <h1>Insight <span>AI</span></h1>
+      </div>
+      <div class="header-actions">
+        <div id="plan-badge" class="badge-free hidden">Loading...</div>
+        <button id="settings-btn" class="icon-btn" title="Settings">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- API Key Settings View -->
+    <div id="api-key-container" class="view-state hidden fade-in">
+      <div class="settings-card">
+        <p class="api-help">Configure your API provider to generate detailed summaries.</p>
+        
+        <div class="input-group">
+          <label for="api-provider">Select Provider</label>
+          <div class="select-wrapper">
+            <select id="api-provider">
+              <option value="gemini">Google Gemini AI</option>
+              <option value="openai">OpenAI (ChatGPT)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label for="api-key">API Key</label>
+          <input type="password" id="api-key" placeholder="Enter your secret key" autocomplete="off" />
+        </div>
+
+        <button id="save-api-key" class="btn primary full-width mt-2">Save Configuration</button>
+        <button id="cancel-settings-btn" class="btn text full-width mt-1 hidden">Cancel</button>
+      </div>
+    </div>
+
+    <!-- Main Action View -->
+    <div id="main-container" class="view-state fade-in pt-3 pb-2">
+      <div class="hero-section text-center">
+        <p class="subtitle">Turn YouTube videos into smart summaries</p>
+
+        <div class="usage-guide mt-2">
+          <p class="usage-title"><strong>How to use Insight AI:</strong></p>
+          <ul class="usage-list">
+            <li>Open any YouTube video</li>
+            <li>Click <strong>Generate Summary</strong></li>
+            <li>Get a long or short article based on video length!</li>
+          </ul>
+        </div>
+        
+        <p id="quota-text" class="quota-counter mt-2 hidden">0 / 3 Free Summaries Used Today</p>
+
+        <!-- Upgrade Paywall Card -->
+        <div id="upgrade-card" class="upgrade-card hidden mt-2">
+          <h4>Daily Limit Reached</h4>
+          <p>Upgrade to Pro for unlimited summaries, timestamp Key Moments, and PDF downloads.</p>
+          <button id="upgrade-btn" class="btn primary full-width mt-1">Upgrade via Polar.sh</button>
+        </div>
+        
+        <button id="generate-btn" class="btn generate-btn mt-2">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21 16-4 4-4-4"/><path d="M17 20V4"/><path d="m3 8 4-4 4 4"/><path d="M7 4v16"/></svg>
+          <span id="generate-text">Generate Summary</span>
+          <div class="btn-hover-effect"></div>
+        </button>
+      </div>
+
+      <!-- Loading State inside popup -->
+      <div id="loading" class="hidden">
+        <div class="loader-container">
+          <div class="circular-loader"></div>
+        </div>
+        <p class="loading-status" id="loading-status">Analyzing transcript...</p>
+        <div class="progress-bar-container mt-2">
+          <div class="progress-bar" id="progress-bar"></div>
+        </div>
+      </div>
+
+      <div id="error-message" class="hidden error-card slide-up mt-2">
+        <svg class="error-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <span></span>
+      </div>
+
+      <div class="footer-credit mt-3">Insight AI • Created by Abdullah Dilshad</div>
+    </div>
+  </div>
+  <script src="auth.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>
