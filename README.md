@@ -1,6 +1,7 @@
 # Insight AI
 
-#Developer : Abdullah Dilshad
+# Developer : Abdullah Dilshad
+
 This is a production-ready, highly polished Chrome Extension that generates long-form, structured summaries of any YouTube video using AI. By generating a beautiful reading-layout article based on the video transcript, users can learn and consume content significantly faster.
 
 ## Features
