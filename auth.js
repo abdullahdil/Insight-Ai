@@ -34,7 +34,7 @@ async function syncUserAuth(email) {
         'Content-Type': 'application/json',
         'Prefer': 'return=representation'
       },
-      body: JSON.stringify({ email: email, plan: 'free', usage_count: 0 })
+      body: JSON.stringify({ email: email, plan: 'free', credits: 5 })
     });
 
     const newUserData = await insertRes.json();
@@ -47,49 +47,21 @@ async function syncUserAuth(email) {
 }
 
 /**
- * Checks and increments the user's daily usage limit.
- * Resets daily count automatically if 24 hours have passed.
+ * Verifies the user has a positive credit balance to generate summaries using our proxy.
+ * (Note: Actual deduction happens securely on the Supabase Edge Function).
  */
-async function checkAndIncrementUsage(user) {
-  if (user.plan === 'pro') return { allowed: true };
-
-  const now = new Date();
-  const lastReset = new Date(user.last_reset || now);
-  const hoursSinceReset = Math.abs(now - lastReset) / 36e5;
-
-  let newUsageCount = user.usage_count;
-
-  // Reset limits daily
-  if (hoursSinceReset >= 24) {
-    newUsageCount = 0;
-  }
-
-  if (newUsageCount >= 3) {
-    return { allowed: false, count: 3 };
-  }
-
-  // Increment usage on Supabase
-  try {
-    await fetch(`${SUPABASE_URL}/rest/v1/users?email=eq.${encodeURIComponent(user.email)}`, {
-      method: 'PATCH',
-      headers: {
-        'apikey': SUPABASE_KEY,
-        'Authorization': `Bearer ${SUPABASE_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        usage_count: newUsageCount + 1,
-        last_reset: hoursSinceReset >= 24 ? now.toISOString() : user.last_reset
-      })
-    });
-    return { allowed: true, count: newUsageCount + 1 };
-  } catch (e) {
-    console.error("Supabase limit check error:", e);
-    return { allowed: false, count: newUsageCount };
+async function hasCredits(user) {
+  // If they somehow have a pro plan that isn't credit-bound, let them through
+  if (user.plan === 'pro' && user.credits === null) return { allowed: true, count: 'Unlimited' };
+  
+  if (user.credits > 0) {
+    return { allowed: true, count: user.credits };
+  } else {
+    return { allowed: false, count: 0 };
   }
 }
 
 window.SupabaseAuth = {
   syncUserAuth,
-  checkAndIncrementUsage
+  hasCredits
 };

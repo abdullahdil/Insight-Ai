@@ -20,7 +20,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const planBadge = document.getElementById('plan-badge');
   const quotaText = document.getElementById('quota-text');
   const upgradeCard = document.getElementById('upgrade-card');
-  const upgradeBtn = document.getElementById('upgrade-btn');
+  const buy50Btn = document.getElementById('buy-50-btn');
+  const buy500Btn = document.getElementById('buy-500-btn');
 
   let hasStoredKey = false;
   let simulatedProgressInterval;
@@ -75,19 +76,23 @@ document.addEventListener('DOMContentLoaded', () => {
       quotaText.classList.add('hidden');
     } else {
       planBadge.classList.add('badge-free');
-      planBadge.textContent = 'Free Plan';
-      quotaText.textContent = `${currentUser.usage_count} / 3 Free Summaries Used Today`;
+      planBadge.textContent = 'Pay As You Go';
+      quotaText.textContent = `${currentUser.credits} Credits Remaining`;
       quotaText.classList.remove('hidden');
     }
     // Store plan so summary page can restrict Pro features
     chrome.storage.local.set({ userPlan: currentUser.plan });
   }
 
-  upgradeBtn.addEventListener('click', () => {
+  buy50Btn.addEventListener('click', () => {
     if (currentUser) {
-      // Open Polar.sh checkout. Passes the Supabase UUID exactly as requested
-      // Replace YOUR_POLAR_PRODUCT_ID with actual ID
-      window.open(`https://buy.polar.sh/polar_cl_8Af7l7peIYKXogoBiIFo12QnD93OpLB2Ld2sc3ABrkc?metadata[userId]=${currentUser.id}`, '_blank');
+      window.open(`https://buy.polar.sh/polar_cl_AMoUPwv91YKd6dWArP1xw5PpBznRi07NP2CeG2dxSaK?metadata[userId]=${currentUser.id}`, '_blank');
+    }
+  });
+
+  buy500Btn.addEventListener('click', () => {
+    if (currentUser) {
+      window.open(`https://buy.polar.sh/polar_cl_cCoXVVCSQ2tmEDGcC2PgglMhz7ehBT2z9Vb4Y3KxD4E?metadata[userId]=${currentUser.id}`, '_blank');
     }
   });
 
@@ -95,11 +100,9 @@ document.addEventListener('DOMContentLoaded', () => {
   chrome.storage.local.get(['apiKey', 'apiProvider'], (result) => {
     if (result.apiKey) {
       hasStoredKey = true;
-      showMainUI();
       apiProviderSelect.value = result.apiProvider || 'gemini';
     } else {
       hasStoredKey = false;
-      showApiKeyUI();
     }
   });
 
@@ -121,6 +124,11 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   settingsBtn.addEventListener('click', () => {
+    if (!currentUser || currentUser.plan === 'free') {
+      showError('Custom API keys are a Pro feature. Upgrade to Pro to use your own OpenAI or Gemini keys for unlimited summaries!');
+      upgradeCard.classList.remove('hidden');
+      return;
+    }
     chrome.storage.local.get(['apiKey', 'apiProvider'], (result) => {
       apiKeyInput.value = result.apiKey || '';
       apiProviderSelect.value = result.apiProvider || 'gemini';
@@ -142,7 +150,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Freemium Implementation: Check Daily Limits
-    const limitCheck = await window.SupabaseAuth.checkAndIncrementUsage(currentUser);
+    const limitCheck = await window.SupabaseAuth.hasCredits(currentUser);
     if (!limitCheck.allowed) {
       upgradeCard.classList.remove('hidden');
       generateBtn.classList.add('hidden'); // Hide button so they upgrade
@@ -150,9 +158,9 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    // UI update limit
-    currentUser.usage_count = limitCheck.count;
-    updatePlanUI();
+    // We don't deduct UI limits yet, we wait for a successful generation to return the new credit value
+    // currentUser.credits = limitCheck.count;
+    // updatePlanUI();
 
     // Check if on YouTube
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
@@ -254,8 +262,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
   async function generateSummary(text, timestampedText, title) {
     chrome.storage.local.get(['apiKey', 'apiProvider'], async (result) => {
-      const apiKey = result.apiKey;
-      const provider = result.apiProvider || 'gemini';
+      const isFree = !currentUser || currentUser.plan === 'free';
+      const apiKey = isFree ? null : result.apiKey;
+      const provider = isFree ? 'free' : (result.apiProvider || 'gemini');
+
+      if (!isFree && !apiKey) {
+        showError("Please configure your API key in settings.");
+        stopLoading();
+        showApiKeyUI(true);
+        return;
+      }
 
       const promptText = `Analyze the following YouTube video transcript and generate a well-structured summary AND a Key Moments list.
 
@@ -290,8 +306,28 @@ ${formatTimestampedTranscript(timestampedText) || text.substring(0, 150000)}`;
       try {
         let summaryHtml = '';
 
-        if (provider === 'gemini') {
-          const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+        if (isFree) {
+          // Send to the Supabase proxy for Free users
+          const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNnZm93ZGRxdHNxd3lqbXBjYmV4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5OTQ5MTgsImV4cCI6MjA4ODU3MDkxOH0.QLc-kzaQUFHnD4XCFZcX3I-bYaww_dHv8p4s0kwNe3A';
+          const res = await fetch(`https://sgfowddqtsqwyjmpcbex.supabase.co/functions/v1/generate-summary`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${SUPABASE_KEY}`,
+              'apikey': SUPABASE_KEY
+            },
+            body: JSON.stringify({ prompt: promptText, userId: currentUser.id })
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error || 'Server Error');
+          summaryHtml = data.summaryHtml;
+
+          if (data.creditsRemaining !== undefined) {
+            currentUser.credits = data.creditsRemaining;
+            updatePlanUI();
+          }
+        } else if (provider === 'gemini') {
+          const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({

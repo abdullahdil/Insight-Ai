@@ -2,9 +2,8 @@
 CREATE TABLE public.users (
   id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
   email text UNIQUE NOT NULL,
-  plan text DEFAULT 'free', -- 'free' or 'pro'
-  usage_count integer DEFAULT 0,
-  last_reset timestamp with time zone DEFAULT now()
+  plan text DEFAULT 'free', -- legacy flag
+  credits integer DEFAULT 5
 );
 
 -- Enable RLS (Row Level Security) if desired, or leave open for simple REST access
